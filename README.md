@@ -1,16 +1,16 @@
 # Flocking with Go
 
-I have been writing flocking simulations for a long time. I played around with it with Java but the earliest one I still have record of was with JRuby and Swing called [Utopia](https://youtu.be/x44s8TTWm5E). I subsequently wrote one using [Shoes](http://shoesrb.com) and that was the one in my [_Exploring Everyday Things witn R and Ruby_](http://shop.oreilly.com/product/0636920022626.do) book and re-wrote it again using [Gosu](https://github.com/gosu/gosu), a 2D game development library for Ruby and C++. This version can be found [here](https://github.com/sausheong/utopia).
+I have been writing flocking simulations for a long time. I played around with it with Java but the earliest one I still have record of was with JRuby and Swing called [Utopia](https://youtu.be/x44s8TTWm5E). I subsequently wrote one using [Shoes](http://shoesrb.com) and that was the one in my [_Exploring Everyday Things witn R and Ruby_](http://shop.oreilly.com/product/0636920022626.do) book. Some time after (I was unhappy with Shoes in general), I re-wrote it again using [Gosu](https://github.com/gosu/gosu), a 2D game development library for Ruby and C++. This version can be found [here](https://github.com/sausheong/utopia).
 
-In case you're wondering what flocking simulations are, they're basically a software program that simulates the flocking behavior of birds. This flocking behavior is very somewhat similar to the swarming behavior of insects or the shoaling behavior of fish. It's considered an emergent behavior -- a behavior that arises from individuals following simple rules and doesn't involve any central coordination. Such behavior, especially seen in murmurations of starlings or swarms of barracuda can be a breath-taking phenomenon.
+[Flocking](https://en.wikipedia.org/wiki/Flocking_(behavior)) simulations are basically a software program that simulates the flocking behavior of birds. This flocking behavior is very somewhat similar to the swarming behavior of insects or the shoaling behavior of fish. It's considered an emergent behavior -- a behavior that arises from individuals following simple rules and doesn't involve any central coordination. Such behavior, especially seen in murmurations of starlings or swarms of barracuda can be a breath-taking phenomenon.
 
 ![murmuration of starlings](imgs/flocking.jpg)
 
 ## Boids
 
-Flocking was first simulated in software by Craig Reynolds, a programmer who developed a software program called [_boids_](http://www.red3d.com/cwr/boids/) and published a paper on the topic in 1987 in the proceedings of the ACM SIGGRAPH conference.
+Flocking was first simulated in software by Craig Reynolds, a programmer who developed a software program called [_boids_](http://www.red3d.com/cwr/boids/) and published a paper on the topic in 1987 in the proceedings of the ACM SIGGRAPH conference. Since then, there has been a number of advancements in simulating flocking but nonetheless the basic idea still remains pretty simple.
 
-Boids used three simple rules to describe how an individual boid moves around:
+Boids itself used three basic rules to describe how an individual boid moves around:
 
 * _Separation_ -- avoid crowding other flockmates that are close by 
 * _Alignment_ -- move towards the average direction of nearby flockmates
@@ -20,9 +20,11 @@ Boids used three simple rules to describe how an individual boid moves around:
 ![alignment](imgs/Rule_alignment.gif)
 ![cohesion](imgs/Rule_cohesion.gif)
 
+These rules have been expanded and in some cases, more rules have been added but the fundamental idea is that a localised reaction by an individual following a few simple rules can result in complex, unexpected behavior.
+
 ## Doing it in Go
 
-While I have been programming in Go seriously for a few years and it's my primary programming language now, I haven't been able to figure out how to write a flocking simulation all this time. The biggest problem is that Go is mostly a backend programming language and doesn't really have a GUI toolkit. While there were a few attempts, including bindings to GTK and QT, none of them fit what I wanted. If you're looking for one for a desktop application, you are probably better off using [Electron](https://github.com/electron/electron) and building a web application in Go to back that up.
+While I have been programming in Go seriously for a few years (it's my primary programming language now), I haven't been able to figure out a good way to write a flocking simulation with Go all this time. The biggest problem is that Go is mostly a backend programming language and doesn't really have a GUI toolkit. While there were a few attempts, including bindings to GTK and QT, none of them fit what I wanted. If you're looking for one for a desktop application, you are probably better off using [Electron](https://github.com/electron/electron) and building a web application in Go to back that up.
 
 That is, until I was fiddling around with genetic algorithms in my post [_A gentle introduction to genetic algorithms_](https://sausheong.github.io/posts/a-gentle-introduction-to-genetic-algorithms/). In that post I was trying to display an image to the terminal, in my case, the excellent [iTerm2](https://www.iterm2.com/). There's where I stumbled on this hack on iTerm2 that allows me to display images on the screen.
 
@@ -45,7 +47,7 @@ type Goid struct {
 }
 ```
 
-Position and color is pretty easy to understand. Velocity here is not simply the speed the goid is moving but also direction it is moving. In this case, `Vx` and `Vy` is how far away the goid is going to be away the next loop, and also directionally where it's going to be. Mathematically speaking, while `X` and `Y` is the _scalar_ position (it tells you how far away from position (0,0) on a 2D plane), `Vx` and `Vy` is a [_vector_](http://mathinsight.org/vector_introduction).
+Position and color is pretty easy to understand. Velocity here is not simply the speed the goid is moving but also direction it is moving. In this case, `Vx` and `Vy` is how far away the goid is going to be away the next loop, and also directionally where it's going to be. Mathematically speaking, while `X` and `Y` is the _scalar_ position (it tells you how far away from origin on a 2D plane), `Vx` and `Vy` is a [_vector_](http://mathinsight.org/vector_introduction).
 
 Creating goids is relatively simple. Each goid must be within the window and its starting velocity is smaller than its size.
 
@@ -103,7 +105,7 @@ func (g *Goid) distance(n Goid) float64 {
 }
 ```
 
-First, we clone the entire population of goids, then we use `sort.SliceStable` to sort the cloned array by distance from the goid in question. Finding the distance is a simple matter of using the Pythagoras theorem.
+First, we clone the entire population of goids, then we use `sort.SliceStable` to sort the cloned array by distance from the goid in question. Finding the distance is just a matter of using the Pythagoras theorem.
 
 ![Pythagoras theorem](imgs/pythagoras.png)
 
@@ -296,3 +298,7 @@ This is how it looks when I run it.
 ## Code
 
 All the code found here can get found at http://github.com/sausheong/goids.
+
+## Why did I do this?
+
+Flocking simulations have been done to the death, but I enjoy writing it. I guess that's probably why I did it for the I-don't-know-how-many-times. Also, it gives me ideas and practice on where else to take it, and also doing more with the idea of printing frames on a terminal. You'll probably see more of this later.
